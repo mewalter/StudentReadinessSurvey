@@ -5,18 +5,93 @@ library("scales")
 library("lubridate")
 library("rstudioapi")
 library("jsonlite")
+library("lessR")
+library("likert")
 
 
-
-
-BaseDir <- setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-#BaseDir <- setwd("~/pCloudDrive/RProjects/PeerEvalAnalysis")
+BaseDir <- dirname(rstudioapi::getActiveDocumentContext()$path)
 DataDir <- paste0(BaseDir,"/Data/")
-setwd(DataDir)
+setwd(BaseDir)
 #if( .Platform$OS.type == "unix" )
 #  DataDir <- "~/Dropbox/Classes/MAE151F20/Grades/PeerEval/MidQuarter/Data"
 
 # rm(list=ls())
+
+names_labels <- c("submit","email","class",
+                  "A. I understand the subject matter being taught in this course.",
+                  "B. I believe the subject matter taught in this course is relevant to my career goals.",
+                  "C. There are no out-of-the classroom issues or distractions affecting my ability to understand/achieve the student learning objectives of this course.",
+                  "D. What I am learning in class has prepared me to complete the class assignments.",
+                  "E. I believe there is value in the assignments to practice application of the course subject matter.",
+                  "F. I know how to overcome non-academic issues that could hinder my ability to understand/achieve the student learning objectives of this course.",
+                  "G. I can extend what I am learning in this class to new types of problems or new areas.",
+                  "H. I believe there is value in retaining knowledge from this course for use in future endeavors.",
+                  "I. I am not having to sacrifice other priorities to do well in this course.",
+                  "J. I am confident that I will retain knowledge from this course to use in future endeavors.",
+                  "K. I can show others how to apply or use the topics taught in this course.",
+                  "L. I believe there is value in discussing or working through the course materials with others.",
+                  "M. This course is well organized.",
+                  "N. The instructor for this course is effective at teaching the course subject matter.",
+                  "O. I am confident that my work is be evaluated fairly.")
+names_vars <- c("submit","email","class","X1.1","X2.1","X3.1","X1.2","X2.2","X3.2","X1.3","X2.3","X3.3",
+                  "X1.4.1","X1.4.2","X2.4","X3.4","X3.5","X3.6")
+
+name_vec = data.frame("vars"=names_vars,"labels"=names_labels)
+
+scale <- c("Strongly disagree", "Disagree", "Slightly Disagree", "Slightly Agree", "Agree", "Strongly agree")
+
+filename <- paste0(DataDir,"refbresponses9mar1200.csv")
+
+alldata <- read.csv(filename, col.names = names_vars)
+
+classcounts <- alldata %>% dplyr:: count(class, name = 'N') 
+
+ggplot(data=classcounts,aes(x=class, y=N, fill=class)) + geom_bar(stat="identity") + 
+  geom_text(aes(label = N), vjust = -0.2) +
+  ggtitle("Number of Students Responding per Class") + xlab("Class") + ylab("Number of Students") +
+  theme(axis.text.x = element_text(angle=45,hjust=1),axis.text.y=element_text(angle=90))
+
+#data151a <- alldata %>% filter(class=="EngMAE151A")
+
+factordata <- alldata %>% mutate_at(vars(starts_with("X")), funs(factor(., levels = scale, ordered = TRUE))) %>% 
+  rename_at(vars(name_vec$vars), ~ name_vec$labels)
+
+# likert(factordata[,c(4:18)], grouping = factordata[,3])
+
+#all questions
+p <- plot(likert(factordata[,c(4:18)], grouping = factordata[,3]), legend.position="top", label_wrap_mod(value, width = 75))
+
+
+p <- likert(factordata[,c(4:18)], grouping = factordata[,3])
+plot(p, legend.position="top", wrap=90) 
+
++ 
+  theme(legend.position="top", legend.text = element_text(size = rel(0.2)))
+
+
+
+
+
+
+group.order=names_labels[4:18]) 
+
+p <- likert(survey4)
+a <- likert.bar.plot(p, legend.position = "right", text.size = 4) +
+  theme(text = element_text(size = rel(4)),axis.text.y = element_text(size = rel(2))) +
+  theme_update(legend.text = element_text(size = rel(0.7))) +
+  theme_classic()
+plot(a)
+
+
+
+
+
+
+
+
+
+
+
 
 write.csv(teamdata, file = "../GroupsWithNames.csv",row.names=FALSE)
 
