@@ -38,32 +38,75 @@ names_vars <- c("submit","email","class","X1.1","X2.1","X3.1","X1.2","X2.2","X3.
 
 name_vec = data.frame("vars"=names_vars,"labels"=names_labels)
 
+names_labels2 <- c("submit","email","transfer","quarter","dept","course","startt",
+                  "A. I understand the subject matter being taught in this course.",
+                  "B. I believe the subject matter taught in this course is relevant to my career goals.",
+                  "C. There are no out-of-the classroom issues or distractions affecting my ability to understand/achieve the student learning objectives of this course.",
+                  "D. What I am learning in class has prepared me to complete the class assignments.",
+                  "E. I believe there is value in the assignments to practice application of the course subject matter.",
+                  "F. I know how to overcome non-academic issues that could hinder my ability to understand/achieve the student learning objectives of this course.",
+                  "G. I can extend what I am learning in this class to new types of problems or new areas.",
+                  "H. I believe there is value in retaining knowledge from this course for use in future endeavors.",
+                  "I. I am not having to sacrifice other priorities to do well in this course.",
+                  "J. I am confident that I will retain knowledge from this course to use in future endeavors.",
+                  "K. I can show others how to apply or use the topics taught in this course.",
+                  "L. I believe there is value in discussing or working through the course materials with others.",
+                  "M. This course is well organized.",
+                  "N. The instructor for this course is effective at teaching the course subject matter.",
+                  "O. I am confident that my work is be evaluated fairly.",
+                  "completet")
+names_vars2 <- c("submit","email","transfer","quarter","dept","course","startt","X1.1","X2.1","X3.1","X1.2","X2.2","X3.2","X1.3","X2.3","X3.3",
+                "X1.4.1","X1.4.2","X2.4","X3.4","X3.5","X3.6","completet")
+
+name_vec2 = data.frame("vars"=names_vars2,"labels"=names_labels2)
+
+
 scale <- c("Strongly disagree", "Disagree", "Slightly Disagree", "Slightly Agree", "Agree", "Strongly agree")
 
-filename <- paste0(DataDir,"refbresponses9mar1200.csv")
+filename <- paste0(DataDir,"refbresponses20mar1256.csv")
+alldatab <- read.csv(filename, col.names = names_vars)
 
-alldata <- read.csv(filename, col.names = names_vars)
+filename <- paste0(DataDir,"refcresponses20mar1257.csv")
+alldatac <- read.csv(filename, col.names = names_vars)
 
-classcounts <- alldata %>% dplyr:: count(class, name = 'N') 
+filename <- paste0(DataDir,"refgresponses20mar1258.csv")
+alldatag <- read.csv(filename, col.names = names_vars2)
+
+
+classcountsb <- alldatab %>% dplyr:: count(class, name = 'N') 
+classcountsc <- alldatac %>% dplyr:: count(class, name = 'N') 
+classcountsg <- alldatag %>% dplyr:: count(course, name = 'N') 
 
 ggplot(data=classcounts,aes(x=class, y=N, fill=class)) + geom_bar(stat="identity") + 
   geom_text(aes(label = N), vjust = -0.2) +
   ggtitle("Number of Students Responding per Class") + xlab("Class") + ylab("Number of Students") +
-  theme(axis.text.x = element_text(angle=45,hjust=1),axis.text.y=element_text(angle=90))
+  theme(legend.position = "none", axis.text.x = element_text(angle=45,hjust=1),axis.text.y=element_text(angle=90))
 
-#data151a <- alldata %>% filter(class=="EngMAE151A")
-
-factordata <- alldata %>% mutate_at(vars(starts_with("X")), funs(factor(., levels = scale, ordered = TRUE))) %>% 
+factordatab <- alldatab %>% mutate_at(vars(starts_with("X")), funs(factor(., levels = scale, ordered = TRUE))) %>% 
   rename_at(vars(name_vec$vars), ~ name_vec$labels)
 
-# likert(factordata[,c(4:18)], grouping = factordata[,3])
+factordatac <- alldatac %>% mutate_at(vars(starts_with("X")), funs(factor(., levels = scale, ordered = TRUE))) %>% 
+  rename_at(vars(name_vec$vars), ~ name_vec$labels)
 
-#all questions
-p <- plot(likert(factordata[,c(4:18)], grouping = factordata[,3]), legend.position="top", label_wrap_mod(value, width = 75))
+factordatag <- alldatag %>% mutate_at(vars(starts_with("X")), funs(factor(., levels = scale, ordered = TRUE))) %>% 
+  rename_at(vars(name_vec2$vars), ~ name_vec2$labels)
+
+factordatab151a <- alldatab %>% filter(class=="EngMAE151A")
+
+factordatabc <-
 
 
-p <- likert(factordata[,c(4:18)], grouping = factordata[,3])
+
+p <- likert(factordatab[,c(4:18)], grouping = factordatab[,3])
 plot(p, legend.position="top", wrap=90) 
+
+p <- likert(factordatac[,c(4:18)], grouping = factordatac[,3])
+plot(p, legend.position="top", wrap=90) 
+
+
+
+
+
 
 + 
   theme(legend.position="top", legend.text = element_text(size = rel(0.2)))
