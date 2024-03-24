@@ -119,7 +119,13 @@ plot(p, legend.position="top", wrap=90)
 p <- likert(factordatag[,c(8:22)], grouping = factordatag[,3])
 plot(p, legend.position="top", wrap=90) 
 
+ggplot(factordatag, aes(x=factor(0), y=completet)) + 
+  geom_boxplot(outlier.colour = "red",outlier.shape = 1,fill = "white",colour = "#3366FF") + # This is the plot function
+  labs(x="Response Time",y="Time (min)") + scale_y_continuous(breaks=seq(0,20,by=2)) 
 
+
+
+boxplot(factordatag$completet)
 
 
 
