@@ -125,6 +125,11 @@ ggplot(factordatag, aes(x=factor(0), y=completet)) +
 
 
 
+
+
+
+
+
 boxplot(factordatag$completet)
 
 
